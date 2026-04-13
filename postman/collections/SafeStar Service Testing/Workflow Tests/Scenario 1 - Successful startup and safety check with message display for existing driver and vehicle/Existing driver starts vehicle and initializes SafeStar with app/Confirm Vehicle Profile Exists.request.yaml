@@ -15,4 +15,27 @@ auth:
     headerPrefix: Bearer
     queryParamKey: token
     header: "{}"
+scripts:
+  - type: afterResponse
+    code: |+
+      const vinDecode = pm.require('npm:vin-decode@0.2.0');
+      const qa_workshop_package = pm.require('@postvehicle-enterprise-team-ba9ec131-e737-4002-9831-c3a1ce25/qa_workshop_package');
+
+      var jsonData = pm.response.json();
+
+      pm.test("VIN is a validly-formatted string", function () {
+          console.log("Checking VIN: " + jsonData.vehicle.vin + " ...");
+          pm.expect(jsonData.vehicle.vin).to.be.a.string;
+          pm.expect(qa_workshop_package.isValidVIN(jsonData.vehicle.vin)).to.be.true;
+      });
+
+      console.log("Here is the vehicle info for VIN: " + jsonData.vehicle.vin);
+      console.log(vinDecode(jsonData.vehicle.vin).decode());
+
+    language: text/javascript
+    packages:
+      "@postvehicle-enterprise-team-ba9ec131-e737-4002-9831-c3a1ce25/qa_workshop_package":
+        id: 019d88a0-c28e-7b12-b58e-23ba7cb08091
+      npm:vin-decode@0.2.0:
+        id: npm:vin-decode@0.2.0
 order: 2000
